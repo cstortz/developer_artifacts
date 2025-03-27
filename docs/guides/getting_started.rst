@@ -84,6 +84,91 @@ Setup
 
       cp .env.example .env
 
+Logging Configuration
+------------------
+
+The project includes a comprehensive logging configuration that supports both console and file logging:
+
+1. Configure logging in your `.env` file:
+   .. code-block:: text
+
+      LOG_LEVEL=INFO
+      LOG_FORMAT=%(asctime)s - %(name)s - %(levelname)s - %(message)s
+      LOG_FILE=logs/app.log
+
+2. Import and use the logger in your code:
+   .. code-block:: python
+
+      from src.core.logging import get_logger
+
+      logger = get_logger(__name__)
+
+      def your_function():
+          logger.info("Starting operation")
+          try:
+              # Your code here
+              logger.debug("Operation details")
+              logger.info("Operation completed successfully")
+          except Exception as e:
+              logger.error(f"Operation failed: {str(e)}")
+              raise
+
+3. Log levels available:
+   - DEBUG: Detailed information for debugging
+   - INFO: General operational information
+   - WARNING: Warning messages for potential issues
+   - ERROR: Error messages for failed operations
+   - CRITICAL: Critical errors requiring immediate attention
+
+4. Log file rotation:
+   - Log files are automatically rotated when they reach 10MB
+   - Up to 5 backup files are kept
+   - Backup files are named with a timestamp suffix
+
+5. Example usage in different contexts:
+
+   a. In API endpoints:
+   .. code-block:: python
+
+      @router.post("/items")
+      async def create_item(item: ItemCreate):
+          logger.info(f"Creating new item: {item.name}")
+          try:
+              result = await item_service.create(item)
+              logger.info(f"Item created successfully: {result.id}")
+              return result
+          except Exception as e:
+              logger.error(f"Failed to create item: {str(e)}")
+              raise HTTPException(status_code=500, detail=str(e))
+
+   b. In background tasks:
+   .. code-block:: python
+
+      async def process_background_task():
+          logger.info("Starting background task")
+          try:
+              # Process data
+              logger.debug("Processing data chunk")
+              # More processing
+              logger.info("Background task completed")
+          except Exception as e:
+              logger.error(f"Background task failed: {str(e)}")
+              raise
+
+   c. In database operations:
+   .. code-block:: python
+
+      async def save_to_database(data: dict):
+          logger.info("Saving data to database")
+          try:
+              async with db.transaction():
+                  result = await db.execute(query, data)
+                  logger.debug(f"Database operation result: {result}")
+                  return result
+          except Exception as e:
+              logger.error(f"Database operation failed: {str(e)}")
+              raise
+
 Development Workflow
 ------------------
 
